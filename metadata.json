@@ -1,0 +1,7 @@
+{
+  "name": "VogueAI - Virtual Try-On",
+  "description": "A high-end virtual fashion try-on experience using AI to transform product photos into professional model photoshoots.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
