@@ -19,6 +19,22 @@ export const MODELS: Model[] = [
     description: 'Ideal for formal dresses and premium apparel.'
   },
   {
+    id: 'leo',
+    name: 'Leo',
+    category: 'Kids (Boy)',
+    emoji: '👦',
+    gradient: 'from-sky-100 to-cyan-100',
+    description: 'Designed specifically for boys childrenswear.'
+  },
+  {
+    id: 'lily',
+    name: 'Lily',
+    category: 'Kids (Girl)',
+    emoji: '👧',
+    gradient: 'from-pink-50 to-rose-100',
+    description: 'Perfect for girls fashion and playful outfits.'
+  },
+  {
     id: 'alex',
     name: 'Alex',
     category: 'Modern',
@@ -33,6 +49,22 @@ export const MODELS: Model[] = [
     emoji: '👨🏿',
     gradient: 'from-emerald-100 to-teal-100',
     description: 'Optimized for sportswear and active fits.'
+  },
+  {
+    id: 'arthur',
+    name: 'Arthur',
+    category: 'Senior',
+    emoji: '👴',
+    gradient: 'from-slate-100 to-gray-200',
+    description: 'Sophisticated look for classic and comfortable senior wear.'
+  },
+  {
+    id: 'martha',
+    name: 'Martha',
+    category: 'Senior',
+    emoji: '👵',
+    gradient: 'from-stone-100 to-amber-50',
+    description: 'Elegant and graceful model for timeless fashion.'
   }
 ];
 

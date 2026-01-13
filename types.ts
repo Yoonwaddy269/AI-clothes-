@@ -34,5 +34,5 @@ export interface HistoryItem {
   status: 'completed' | 'processing' | 'failed';
 }
 
-export type PoseType = 'Standing' | 'Walking' | 'Sitting';
+export type PoseType = 'Standing' | 'Walking' | 'Sitting' | 'Playful';
 export type BackgroundType = 'white' | 'gray' | 'gradient' | 'warm';

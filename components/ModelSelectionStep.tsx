@@ -25,7 +25,7 @@ const ModelSelectionStep: React.FC<ModelSelectionStepProps> = ({
   onBack
 }) => {
   return (
-    <div className="max-w-5xl mx-auto px-4 pt-12 pb-24">
+    <div className="max-w-6xl mx-auto px-4 pt-12 pb-24">
       {/* Progress Dots */}
       <div className="flex items-center justify-center gap-3 mb-12">
         <div className="w-10 h-10 rounded-full bg-gradient-primary text-white flex items-center justify-center font-bold">
@@ -44,7 +44,7 @@ const ModelSelectionStep: React.FC<ModelSelectionStepProps> = ({
         <p className="text-gray-500">Select an AI model that best represents your brand's style.</p>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 mb-12">
         {MODELS.map((m) => (
           <button
             key={m.id}
@@ -56,7 +56,7 @@ const ModelSelectionStep: React.FC<ModelSelectionStepProps> = ({
             }`}
           >
             <div className={`aspect-[3/4] bg-gradient-to-br ${m.gradient} flex items-center justify-center relative`}>
-              <span className="text-7xl group-hover:scale-110 transition-transform">{m.emoji}</span>
+              <span className="text-6xl group-hover:scale-110 transition-transform">{m.emoji}</span>
               {selectedModel.id === m.id && (
                 <div className="absolute top-3 right-3 bg-purple-600 text-white rounded-full p-1 shadow-lg">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -66,8 +66,8 @@ const ModelSelectionStep: React.FC<ModelSelectionStepProps> = ({
               )}
             </div>
             <div className="p-4">
-              <h3 className="font-bold text-gray-900">{m.name}</h3>
-              <p className="text-xs text-gray-500 uppercase tracking-widest font-bold mt-1">{m.category}</p>
+              <h3 className="font-bold text-gray-900 truncate">{m.name}</h3>
+              <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mt-1">{m.category}</p>
             </div>
           </button>
         ))}
@@ -82,12 +82,12 @@ const ModelSelectionStep: React.FC<ModelSelectionStepProps> = ({
             </svg>
             Select Pose
           </h3>
-          <div className="grid grid-cols-3 gap-3">
-            {(['Standing', 'Walking', 'Sitting'] as PoseType[]).map((p) => (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            {(['Standing', 'Walking', 'Sitting', 'Playful'] as PoseType[]).map((p) => (
               <button
                 key={p}
                 onClick={() => onSelectPose(p)}
-                className={`py-3 px-4 rounded-2xl font-semibold text-sm border-2 transition-all ${
+                className={`py-3 px-2 rounded-2xl font-semibold text-xs border-2 transition-all ${
                   selectedPose === p 
                   ? 'border-purple-500 bg-purple-50 text-purple-700' 
                   : 'border-gray-100 bg-gray-50 text-gray-500 hover:border-purple-200'
@@ -111,18 +111,22 @@ const ModelSelectionStep: React.FC<ModelSelectionStepProps> = ({
             <button 
               onClick={() => onSelectBackground('white')}
               className={`w-14 h-14 rounded-2xl border-2 transition-all bg-white ${selectedBackground === 'white' ? 'border-purple-500 scale-110 shadow-lg' : 'border-gray-100 hover:border-purple-200'}`}
+              title="Clean White"
             />
             <button 
               onClick={() => onSelectBackground('gray')}
               className={`w-14 h-14 rounded-2xl border-2 transition-all bg-slate-200 ${selectedBackground === 'gray' ? 'border-purple-500 scale-110 shadow-lg' : 'border-gray-100 hover:border-purple-200'}`}
+              title="Studio Gray"
             />
             <button 
               onClick={() => onSelectBackground('gradient')}
               className={`w-14 h-14 rounded-2xl border-2 transition-all bg-gradient-to-br from-purple-100 to-pink-100 ${selectedBackground === 'gradient' ? 'border-purple-500 scale-110 shadow-lg' : 'border-gray-100 hover:border-purple-200'}`}
+              title="Modern Gradient"
             />
             <button 
               onClick={() => onSelectBackground('warm')}
               className={`w-14 h-14 rounded-2xl border-2 transition-all bg-amber-50 ${selectedBackground === 'warm' ? 'border-purple-500 scale-110 shadow-lg' : 'border-gray-100 hover:border-purple-200'}`}
+              title="Warm Vibe"
             />
           </div>
         </div>

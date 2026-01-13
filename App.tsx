@@ -65,9 +65,10 @@ const App: React.FC = () => {
     setCurrentStep(Step.PROCESSING);
     
     try {
+      // We pass the full selectedModel object to ensure the service knows the category (e.g., Kids)
       const generated = await generateVirtualTryOn(
         uploadedImage.dataUrl,
-        selectedModel.name,
+        selectedModel,
         selectedPose,
         selectedBackground
       );
@@ -86,8 +87,9 @@ const App: React.FC = () => {
       setHistory(prev => [historyItem, ...prev]);
       setCurrentStep(Step.RESULTS);
       showToast("Fashion model generated!");
-    } catch (error) {
-      showToast("Generation failed. Please try again.", "error");
+    } catch (error: any) {
+      console.error("AI Generation Error:", error);
+      showToast(error.message || "Generation failed. Please try again.", "error");
       setCurrentStep(Step.MODEL_SELECT);
     }
   };
