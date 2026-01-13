@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { Model, PoseType, BackgroundType } from '../types';
+import React, { useState, useMemo } from 'react';
+import { Model, PoseType, BackgroundType, AgeCategory, Gender } from '../types';
 import { MODELS } from '../constants.tsx';
 
 interface ModelSelectionStepProps {
@@ -24,6 +24,22 @@ const ModelSelectionStep: React.FC<ModelSelectionStepProps> = ({
   onGenerate,
   onBack
 }) => {
+  const [activeAge, setActiveAge] = useState<AgeCategory>(selectedModel.ageCategory);
+  const [activeGender, setActiveGender] = useState<Gender>(selectedModel.gender);
+
+  const filteredModels = useMemo(() => {
+    return MODELS.filter(m => m.ageCategory === activeAge && (m.gender === activeGender || activeGender === 'Neutral'));
+  }, [activeAge, activeGender]);
+
+  // If active filter renders selectedModel invalid, pick the first available in filter
+  React.useEffect(() => {
+    if (!filteredModels.find(m => m.id === selectedModel.id)) {
+      if (filteredModels.length > 0) {
+        onSelectModel(filteredModels[0]);
+      }
+    }
+  }, [filteredModels, selectedModel, onSelectModel]);
+
   return (
     <div className="max-w-6xl mx-auto px-4 pt-12 pb-24">
       {/* Progress Dots */}
@@ -40,37 +56,89 @@ const ModelSelectionStep: React.FC<ModelSelectionStepProps> = ({
       </div>
 
       <div className="text-center mb-10">
-        <h2 className="text-4xl font-bold text-gray-900 mb-3">Choose Your Model</h2>
-        <p className="text-gray-500">Select an AI model that best represents your brand's style.</p>
+        <h2 className="text-4xl font-bold text-gray-900 mb-3">Model Customization</h2>
+        <p className="text-gray-500">Target your demographic precisely for the best AI generation.</p>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 mb-12">
-        {MODELS.map((m) => (
-          <button
-            key={m.id}
-            onClick={() => onSelectModel(m)}
-            className={`group rounded-3xl overflow-hidden border-2 transition-all text-left bg-white ${
-              selectedModel.id === m.id 
-              ? 'border-purple-500 shadow-xl shadow-purple-100 ring-2 ring-purple-500/20' 
-              : 'border-gray-100 hover:border-purple-200 shadow-sm'
-            }`}
-          >
-            <div className={`aspect-[3/4] bg-gradient-to-br ${m.gradient} flex items-center justify-center relative`}>
-              <span className="text-6xl group-hover:scale-110 transition-transform">{m.emoji}</span>
-              {selectedModel.id === m.id && (
-                <div className="absolute top-3 right-3 bg-purple-600 text-white rounded-full p-1 shadow-lg">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-              )}
-            </div>
-            <div className="p-4">
-              <h3 className="font-bold text-gray-900 truncate">{m.name}</h3>
-              <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mt-1">{m.category}</p>
-            </div>
-          </button>
-        ))}
+      {/* Step 1: Age Category */}
+      <div className="mb-10">
+        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-4 text-center">Step 1: Select Age Category</label>
+        <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
+          {(['Adult', 'Youth', 'Kids'] as AgeCategory[]).map((age) => (
+            <button
+              key={age}
+              onClick={() => setActiveAge(age)}
+              className={`p-6 rounded-3xl border-2 transition-all flex flex-col items-center gap-2 ${
+                activeAge === age 
+                ? 'border-purple-500 bg-purple-50 shadow-lg scale-105' 
+                : 'border-gray-100 bg-white hover:border-purple-200'
+              }`}
+            >
+              <span className="text-3xl">
+                {age === 'Adult' ? '👔' : age === 'Youth' ? '🧢' : '🎈'}
+              </span>
+              <span className={`font-bold ${activeAge === age ? 'text-purple-700' : 'text-gray-600'}`}>{age}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Step 2: Gender Selection */}
+      <div className="mb-10">
+        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-4 text-center">Step 2: Select Gender</label>
+        <div className="flex justify-center gap-4">
+          {(['Male', 'Female', 'Neutral'] as Gender[]).map((g) => (
+            <button
+              key={g}
+              onClick={() => setActiveGender(g)}
+              className={`px-8 py-3 rounded-2xl font-bold text-sm border-2 transition-all ${
+                activeGender === g 
+                ? 'border-purple-500 bg-purple-50 text-purple-700 shadow-md' 
+                : 'border-gray-100 bg-white text-gray-500 hover:border-purple-200'
+              }`}
+            >
+              {g}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Step 3: Specific Model Select */}
+      <div className="mb-12">
+        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-4 text-center">Step 3: Choose Model Persona</label>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          {filteredModels.map((m) => (
+            <button
+              key={m.id}
+              onClick={() => onSelectModel(m)}
+              className={`group rounded-3xl overflow-hidden border-2 transition-all text-left bg-white ${
+                selectedModel.id === m.id 
+                ? 'border-purple-500 shadow-xl shadow-purple-100 ring-2 ring-purple-500/20' 
+                : 'border-gray-100 hover:border-purple-200 shadow-sm'
+              }`}
+            >
+              <div className={`aspect-[3/4] bg-gradient-to-br ${m.gradient} flex items-center justify-center relative`}>
+                <span className="text-4xl group-hover:scale-110 transition-transform">{m.emoji}</span>
+                {selectedModel.id === m.id && (
+                  <div className="absolute top-2 right-2 bg-purple-600 text-white rounded-full p-1 shadow-lg">
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                )}
+              </div>
+              <div className="p-3">
+                <h3 className="font-bold text-gray-900 text-sm truncate">{m.name}</h3>
+                <p className="text-[8px] text-gray-400 uppercase tracking-widest font-black mt-0.5">{m.ageCategory} • {m.gender}</p>
+              </div>
+            </button>
+          ))}
+          {filteredModels.length === 0 && (
+             <div className="col-span-full py-12 text-center text-gray-400 font-medium">
+               No models available for this specific combination. Try a different gender or age group.
+             </div>
+          )}
+        </div>
       </div>
 
       <div className="grid md:grid-cols-2 gap-8 mb-12">
@@ -141,7 +209,8 @@ const ModelSelectionStep: React.FC<ModelSelectionStepProps> = ({
         </button>
         <button 
           onClick={onGenerate}
-          className="w-full md:w-auto px-12 py-4 bg-gradient-primary text-white rounded-2xl text-lg font-bold shadow-xl shadow-purple-300/50 transition-all hover:scale-105 flex items-center justify-center gap-3"
+          disabled={filteredModels.length === 0}
+          className="w-full md:w-auto px-12 py-4 bg-gradient-primary text-white rounded-2xl text-lg font-bold shadow-xl shadow-purple-300/50 transition-all hover:scale-105 flex items-center justify-center gap-3 disabled:opacity-50 disabled:scale-100"
         >
           Generate Try-On
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

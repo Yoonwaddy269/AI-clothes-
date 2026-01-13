@@ -20,7 +20,7 @@ export const generateVirtualTryOn = async (
   }
 
   try {
-    // Initialize the AI client inside the call to ensure fresh configuration
+    // Initialize the AI client
     const ai = new GoogleGenAI({ apiKey });
     
     // Extract base64 data and mime type from the data URL
@@ -33,33 +33,32 @@ export const generateVirtualTryOn = async (
     const mimeType = mimeTypePart ? mimeTypePart[1] : 'image/png';
     const base64Data = parts[1];
 
-    const isKidsCategory = model.category.toLowerCase().includes('kids');
+    const age = model.ageCategory.toLowerCase();
+    const gender = model.gender.toLowerCase();
 
-    // Construct the prompt for high-quality fashion generation
-    const prompt = `Act as a high-end fashion photographer and AI stylist. 
-Using the provided clothing item, generate a professional studio photoshoot.
+    // Construct the prompt with strict demographic enforcement
+    const prompt = `Act as a world-class fashion photographer. 
+Generate a professional fashion photoshoot using the provided clothing item.
 
-TARGET MODEL: ${model.name}
-CATEGORY: ${model.category}
-POSE: ${pose}
-SETTING: ${background} background
+DEMOGRAPHIC TARGET:
+- AGE CATEGORY: ${model.ageCategory}
+- GENDER: ${model.gender}
+- MODEL PERSONA: ${model.name}
 
-${isKidsCategory ? `
-CRITICAL INSTRUCTIONS FOR KIDS CATEGORY:
-1. When the category is 'kids', the system must generate only child images.
-2. Do not generate adult or mature-looking subjects.
-3. Always ensure the output is age-appropriate and matches the selected category.
-4. If there is any ambiguity, default to clearly child-like appearance.
-5. The subject must be a young child or juvenile model appropriate for kids clothing.` : ''}
+SCENE SETTINGS:
+- POSE: ${pose}
+- BACKGROUND: ${background} studio background
 
-INSTRUCTIONS:
-1. Fit the clothing item perfectly onto the model's body.
-2. Maintain the original texture, color, fabric details, and design patterns of the garment.
-3. Use high-end studio lighting to create realistic shadows and depth.
-4. The result must look like a real, high-resolution commercial fashion photograph.
-5. Return ONLY the generated image.`;
+CRITICAL CONSTRAINTS:
+1. AGE ACCURACY: If category is 'Kids', generate a child (~5-10 years old). If 'Youth', generate a teenager (~13-18 years old). If 'Adult', generate a mature adult. NEVER MIX THESE.
+2. GENDER ACCURACY: The model must clearly represent the selected gender (${model.gender}).
+3. CLOTHING INTEGRITY: Fit the provided garment perfectly onto the model. Maintain all original colors, patterns, and fabric textures.
+4. LIGHTING: Use high-end commercial studio lighting with soft shadows.
+5. REALISM: The final output must be indistinguishable from a real photograph.
 
-    // Call generateContent using the recommended structure for image editing/generation
+Return ONLY the generated image. Do not include any text or descriptions.`;
+
+    // Call generateContent for image editing/generation
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash-image',
       contents: [{
@@ -76,39 +75,30 @@ INSTRUCTIONS:
         ],
       }],
       config: {
-        temperature: 0.4, // Reduced temperature for better adherence to safety and realism constraints
+        temperature: 0.5,
         topP: 0.9,
       },
     });
 
-    // Check for valid candidates and content parts
     const candidate = response.candidates?.[0];
     if (!candidate || !candidate.content || !candidate.content.parts) {
-      throw new Error("The AI model did not return a valid response. Please try again.");
+      throw new Error("The AI model did not return a valid response.");
     }
 
-    // Iterate through parts to find the generated image (inlineData)
     for (const part of candidate.content.parts) {
       if (part.inlineData && part.inlineData.data) {
-        // Return the base64 image string with the correct prefix
         return `data:image/png;base64,${part.inlineData.data}`;
       }
     }
 
-    // If no image part was found, check for a text explanation (safety blocks)
     const textPart = candidate.content.parts.find(p => p.text);
     if (textPart && textPart.text) {
-      throw new Error(`Generation blocked: ${textPart.text}`);
+      throw new Error(`AI Feedback: ${textPart.text}`);
     }
 
-    throw new Error("No image data was found in the model's response.");
+    throw new Error("No image was generated.");
   } catch (error: any) {
     console.error("Gemini Generation Error:", error);
-    
-    if (error.message?.includes("xhr error") || error.code === 500) {
-      throw new Error("The AI service is temporarily unavailable. Please try again.");
-    }
-    
     throw error;
   }
 };

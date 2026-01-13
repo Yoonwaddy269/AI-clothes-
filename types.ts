@@ -8,10 +8,14 @@ export enum Step {
   ADMIN = 5
 }
 
+export type AgeCategory = 'Adult' | 'Youth' | 'Kids';
+export type Gender = 'Male' | 'Female' | 'Neutral';
+
 export interface Model {
   id: string;
   name: string;
-  category: string;
+  ageCategory: AgeCategory;
+  gender: Gender;
   emoji: string;
   gradient: string;
   description: string;
